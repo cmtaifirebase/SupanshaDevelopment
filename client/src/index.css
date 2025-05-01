@@ -1,0 +1,78 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+  }
+}
+
+/* Custom Styles */
+.mega-menu {
+  display: none;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s ease;
+}
+
+.mega-menu.active {
+  display: block;
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/* Navigation hover effect */
+.nav-item {
+  position: relative;
+}
+
+.nav-item::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: -4px;
+  left: 0;
+  background-color: #F14B05;
+  transition: width 0.3s;
+}
+
+.nav-item:hover::after {
+  width: 100%;
+}
+
+/* Define colors */
+.bg-primary {
+  background-color: #F14B05;
+}
+
+.bg-secondary {
+  background-color: #E94E77;
+}
+
+.text-primary {
+  color: #F14B05;
+}
+
+.text-secondary {
+  color: #E94E77;
+}
+
+.border-primary {
+  border-color: #F14B05;
+}
+
+.border-secondary {
+  border-color: #E94E77;
+}
+
+.bg-light {
+  background-color: #f8f9fa;
+}
