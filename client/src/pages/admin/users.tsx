@@ -357,18 +357,18 @@ const AdminUsers: React.FC = () => {
       cell: ({ row }: { row: Row<User> }) => {
         const user = row.original;
         const isUpdating = updateRoleMutation.isPending && updateRoleMutation.variables?.userId === user._id;
-        return (
-          <Select
-            value={user.role}
-            onValueChange={(value) => handleRoleChange(user._id, value)}
+  return (
+              <Select
+                value={user.role}
+                onValueChange={(value) => handleRoleChange(user._id, value)}
             disabled={isUpdating}
-          >
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select role" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="admin">Administrator</SelectItem>
-              <SelectItem value="user">Regular User</SelectItem>
+              >
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Select role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="admin">Administrator</SelectItem>
+                  <SelectItem value="user">Regular User</SelectItem>
               <SelectItem value="country-admin">Country Admin</SelectItem>
               <SelectItem value="state-admin">State Admin</SelectItem>
               <SelectItem value="regional-admin">Regional Admin</SelectItem>
@@ -436,8 +436,8 @@ const AdminUsers: React.FC = () => {
               <SelectItem value="cluster-coordinator">Cluster Coordinator</SelectItem>
               <SelectItem value="volunteer">Volunteer</SelectItem>
               <SelectItem value="field-coordinator">Field Coordinator</SelectItem>
-            </SelectContent>
-          </Select>
+                </SelectContent>
+              </Select>
         );
       },
     },

@@ -130,26 +130,26 @@ const AdminDashboard: React.FC = () => {
           />
         )}
         {hasModuleAccess("volunteers") && (
-          <DashboardCard
-            title="Active Volunteers"
+        <DashboardCard
+          title="Active Volunteers"
             value={recentActivities?.activeCount?.toString() || "0"}
             change={recentActivities?.change || "0%"}
             description={recentActivities?.description || ""}
-            icon="👥"
+          icon="👥"
             onRefresh={refetchRecentActivities}
             isRefreshing={isRefetchingActivities}
-          />
+        />
         )}
         {hasModuleAccess("projects") && (
-          <DashboardCard
-            title="Ongoing Projects"
+        <DashboardCard
+          title="Ongoing Projects"
             value={recentActivities?.ongoingProjects?.toString() ?? "0"}
             change={recentActivities?.change ?? "0%"}
             description={recentActivities?.description ?? ""}
-            icon="📋"
+          icon="📋"
             onRefresh={refetchRecentActivities}
             isRefreshing={isRefetchingActivities}
-          />
+        />
         )}
       </div>
 
@@ -157,125 +157,125 @@ const AdminDashboard: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         {/* Donation Overview Card */}
         {hasModuleAccess("donations") && (
-          <Card>
-            <CardHeader>
-              <div className="flex justify-between items-center">
-                <CardTitle>Donation Overview</CardTitle>
+        <Card>
+          <CardHeader>
+            <div className="flex justify-between items-center">
+              <CardTitle>Donation Overview</CardTitle>
+              <button
+                onClick={() => refetchDonationOverview()}
+                disabled={isRefetchingOverview}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+                aria-label="Refresh donation overview"
+              >
+                <RefreshCw
+                  className={`h-4 w-4 ${
+                    isRefetchingOverview ? "animate-spin" : ""
+                  }`}
+                />
+              </button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {isOverviewLoading || isRefetchingOverview ? (
+              <div className="space-y-4">
+                {[...Array(5)].map((_, i) => (
+                  <div key={i} className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <Skeleton className="h-4 w-[120px]" />
+                      <Skeleton className="h-4 w-[80px]" />
+                    </div>
+                    <Skeleton className="h-2 w-full" />
+                  </div>
+                ))}
+              </div>
+            ) : isOverviewError ? (
+              <div className="text-red-500 py-4 text-center">
+                Failed to load data.{" "}
                 <button
-                  onClick={() => refetchDonationOverview()}
-                  disabled={isRefetchingOverview}
-                  className="text-gray-400 hover:text-gray-600 transition-colors"
-                  aria-label="Refresh donation overview"
+                  onClick={() => refetchDonationOverview}
+                  className="text-blue-500 hover:underline"
                 >
-                  <RefreshCw
-                    className={`h-4 w-4 ${
-                      isRefetchingOverview ? "animate-spin" : ""
-                    }`}
-                  />
+                  Retry
                 </button>
               </div>
-            </CardHeader>
-            <CardContent>
-              {isOverviewLoading || isRefetchingOverview ? (
-                <div className="space-y-4">
-                  {[...Array(5)].map((_, i) => (
-                    <div key={i} className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <Skeleton className="h-4 w-[120px]" />
-                        <Skeleton className="h-4 w-[80px]" />
-                      </div>
-                      <Skeleton className="h-2 w-full" />
-                    </div>
-                  ))}
-                </div>
-              ) : isOverviewError ? (
-                <div className="text-red-500 py-4 text-center">
-                  Failed to load data.{" "}
-                  <button
-                    onClick={() => refetchDonationOverview}
-                    className="text-blue-500 hover:underline"
-                  >
-                    Retry
-                  </button>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {donationOverview?.data.map((donation) => (
-                    <div key={donation.name} className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium">
-                          {donation.name}
-                        </span>
-                        <span className="text-sm font-medium">
+            ) : (
+              <div className="space-y-4">
+                {donationOverview?.data.map((donation) => (
+                  <div key={donation.name} className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">
+                        {donation.name}
+                      </span>
+                      <span className="text-sm font-medium">
                           ₹{donation.amount?.toLocaleString()}
-                        </span>
-                      </div>
-                      <Progress value={donation.percentage} className="h-2" />
+                      </span>
                     </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                    <Progress value={donation.percentage} className="h-2" />
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
         )}
 
         {/* Recent Activities Card */}
         {hasModuleAccess("activities") && (
-          <Card>
-            <CardHeader>
-              <div className="flex justify-between items-center">
-                <CardTitle>Recent Activities</CardTitle>
+        <Card>
+          <CardHeader>
+            <div className="flex justify-between items-center">
+              <CardTitle>Recent Activities</CardTitle>
+              <button
+                onClick={() => refetchRecentActivities()}
+                disabled={isRefetchingActivities}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+                aria-label="Refresh recent activities"
+              >
+                <RefreshCw
+                  className={`h-4 w-4 ${
+                    isRefetchingActivities ? "animate-spin" : ""
+                  }`}
+                />
+              </button>
+            </div>
+            <CardDescription>Latest updates and actions</CardDescription>
+          </CardHeader>
+
+          <CardContent>
+            {isActivitiesLoading || isRefetchingActivities ? (
+              <div className="space-y-4">
+                {[...Array(4)].map((_, i) => (
+                  <div key={i} className="space-y-2">
+                    <Skeleton className="h-4 w-[200px]" />
+                    <Skeleton className="h-3 w-[150px]" />
+                  </div>
+                ))}
+              </div>
+            ) : isActivitiesError ? (
+              <div className="text-red-500 py-4 text-center">
+                Failed to load recent activities.{" "}
                 <button
                   onClick={() => refetchRecentActivities()}
-                  disabled={isRefetchingActivities}
-                  className="text-gray-400 hover:text-gray-600 transition-colors"
-                  aria-label="Refresh recent activities"
+                  className="text-blue-500 hover:underline"
                 >
-                  <RefreshCw
-                    className={`h-4 w-4 ${
-                      isRefetchingActivities ? "animate-spin" : ""
-                    }`}
-                  />
+                  Retry
                 </button>
               </div>
-              <CardDescription>Latest updates and actions</CardDescription>
-            </CardHeader>
-
-            <CardContent>
-              {isActivitiesLoading || isRefetchingActivities ? (
-                <div className="space-y-4">
-                  {[...Array(4)].map((_, i) => (
-                    <div key={i} className="space-y-2">
-                      <Skeleton className="h-4 w-[200px]" />
-                      <Skeleton className="h-3 w-[150px]" />
-                    </div>
-                  ))}
-                </div>
-              ) : isActivitiesError ? (
-                <div className="text-red-500 py-4 text-center">
-                  Failed to load recent activities.{" "}
-                  <button
-                    onClick={() => refetchRecentActivities()}
-                    className="text-blue-500 hover:underline"
-                  >
-                    Retry
-                  </button>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {recentActivities?.data?.map((activity, index) => (
-                    <ActivityItem
-                      key={index}
-                      title={activity.title}
-                      description={activity.description}
+            ) : (
+              <div className="space-y-4">
+                {recentActivities?.data?.map((activity, index) => (
+                  <ActivityItem
+                    key={index}
+                    title={activity.title}
+                    description={activity.description}
                       time={new Date(activity.time)?.toLocaleString()}
-                      type={activity.type}
-                    />
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                    type={activity.type}
+                  />
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
         )}
       </div>
 
@@ -288,7 +288,7 @@ const AdminDashboard: React.FC = () => {
         <CardContent>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
             {filteredModules.map((module) => (
-              <ActionButton
+            <ActionButton
                 key={module.href}
                 title={module.label}
                 description={module.label}
@@ -336,10 +336,10 @@ const AdminDashboard: React.FC = () => {
                           <td className="py-2 px-2">{volunteer.program}</td>
                           <td className="py-2 px-2">{volunteer.location}</td>
                           <td className="py-2 px-2">{volunteer.hours}</td>
-                          <td className="py-2 px-2">
+                        <td className="py-2 px-2">
                             <StatusBadge status={volunteer.status} />
-                          </td>
-                        </tr>
+                        </td>
+                      </tr>
                       ))}
                     </tbody>
                   </table>
@@ -369,10 +369,10 @@ const AdminDashboard: React.FC = () => {
                           <td className="py-2 px-2">{donation.amount?.toLocaleString()}</td>
                           <td className="py-2 px-2">{donation.project}</td>
                           <td className="py-2 px-2">{new Date(donation.date)?.toLocaleDateString()}</td>
-                          <td className="py-2 px-2">
+                        <td className="py-2 px-2">
                             <StatusBadge status={donation.status} />
-                          </td>
-                        </tr>
+                        </td>
+                      </tr>
                       ))}
                     </tbody>
                   </table>
@@ -402,10 +402,10 @@ const AdminDashboard: React.FC = () => {
                           <td className="py-2 px-2">{new Date(event.startDateTime)?.toLocaleDateString()}</td>
                           <td className="py-2 px-2">{event.location}</td>
                           <td className="py-2 px-2">{event.attendees?.length?.toString()}</td>
-                          <td className="py-2 px-2">
-                            <StatusBadge status="upcoming" />
-                          </td>
-                        </tr>
+                        <td className="py-2 px-2">
+                          <StatusBadge status="upcoming" />
+                        </td>
+                      </tr>
                       ))}
                     </tbody>
                   </table>
@@ -435,10 +435,10 @@ const AdminDashboard: React.FC = () => {
                           <td className="py-2 px-2">{project.category}</td>
                           <td className="py-2 px-2">{project.location}</td>
                           <td className="py-2 px-2">{project.budget?.toLocaleString()}</td>
-                          <td className="py-2 px-2">
-                            <StatusBadge status="active" />
-                          </td>
-                        </tr>
+                        <td className="py-2 px-2">
+                          <StatusBadge status="active" />
+                        </td>
+                      </tr>
                       ))}
                     </tbody>
                   </table>
