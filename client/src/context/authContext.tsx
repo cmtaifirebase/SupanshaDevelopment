@@ -1,3 +1,4 @@
+import { API_BASE_URL } from '@/config';
 import {
   createContext,
   useContext,
@@ -45,7 +46,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const logout = async () => {
     console.log('Logging out'); // Debug
     try {
-      const res = await fetch('http://localhost:5000/api/auth/logout', {
+      const res = await fetch(`${API_BASE_URL}/api/auth/logout`, {
         method: 'POST',
         credentials: 'include',
       });
@@ -61,7 +62,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const fetchUser = async () => {
       console.log('Checking session...'); // Debug
       try {
-        const res = await fetch('http://localhost:5000/api/auth/me', {
+        const res = await fetch(`${API_BASE_URL}/api/auth/me`, {
           credentials: 'include',
         });
         console.log('Session check status:', res.status); // Debug

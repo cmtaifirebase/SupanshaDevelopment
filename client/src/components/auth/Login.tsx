@@ -3,8 +3,8 @@ import { useMutation } from '@tanstack/react-query';
 import { useAuth } from '../../context/authContext';
 import { useLocation } from 'wouter';
 import { useToast } from '@/hooks/use-toast';
+import { API_BASE_URL } from '@/config';
 
-const API_BASE = 'http://localhost:5000';
 
 interface LoginData {
   email: string;
@@ -36,7 +36,7 @@ interface LoginResponse {
 }
 
 async function loginUser(data: LoginData): Promise<LoginResponse> {
-  const res = await fetch(`${API_BASE}/api/auth/login`, {
+  const res = await fetch(`${API_BASE_URL}/api/auth/login`, {
     method: 'POST',
     credentials: 'include',
     headers: { 'Content-Type': 'application/json' },

@@ -1,3 +1,5 @@
+import { API_BASE_URL } from "@/config";
+
 interface DonationStats {
     thirtyDayStats: {
       change: string;
@@ -21,7 +23,7 @@ interface DonationStats {
   }
   
   export const fetchTotalDonations = async (): Promise<DonationStats> => {
-    const res = await fetch('http://localhost:5000/api/donation/total', {
+    const res = await fetch(`${API_BASE_URL}/api/donation/total`, {
       credentials: 'include',
     });
     
@@ -56,7 +58,7 @@ interface DonationStats {
   
 
   export const fetchDonationOverview = async (): Promise<DonationOverviewResponse> => {
-    const res = await fetch('http://localhost:5000/api/donation/cause', {
+    const res = await fetch(`${API_BASE_URL}/api/donation/cause`, {
       credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
@@ -123,7 +125,7 @@ interface DonationStats {
     ongoingProjects: number;
   }
   export const fetchRecentActivities = async (): Promise<RecentActivitiesResponse> => {
-    const res = await fetch('http://localhost:5000/api/activities/recent-activities', {
+    const res = await fetch(`${API_BASE_URL}/api/activities/recent-activities`, {
       credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
@@ -204,7 +206,7 @@ interface DonationStats {
   
   // Fetch all users
   export const fetchUsers = async (): Promise<UsersResponse> => {
-    const res = await fetch('http://localhost:5000/api/users', {
+    const res = await fetch(`${API_BASE_URL}/api/users`, {
       credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
@@ -226,7 +228,7 @@ interface DonationStats {
   
   // Create new user
   export const createUser = async (userData: CreateUserRequest): Promise<{ success: boolean; user: User }> => {
-    const res = await fetch('http://localhost:5000/api/users', {
+    const res = await fetch(`${API_BASE_URL}/api/users`, {
       method: 'POST',
       credentials: 'include',
       headers: {
@@ -244,7 +246,7 @@ interface DonationStats {
   
   // Update user status
   export const updateUserStatus = async (userId: string, status: 'active' | 'inactive'): Promise<{ success: boolean }> => {
-    const res = await fetch(`http://localhost:5000/api/users/${userId}/status`, {
+    const res = await fetch(`${API_BASE_URL}/api/users/${userId}/status`, {
       method: 'PATCH',
       credentials: 'include',
       headers: {
@@ -262,7 +264,7 @@ interface DonationStats {
   
   // Delete user
   export const deleteUser = async (userId: string): Promise<{ success: boolean }> => {
-    const res = await fetch(`http://localhost:5000/api/users/${userId}`, {
+    const res = await fetch(`${API_BASE_URL}/api/users/${userId}`, {
       method: 'DELETE',
       credentials: 'include',
       headers: {
@@ -282,7 +284,7 @@ interface DonationStats {
     userId: string,
     role: string
   ): Promise<{ success: boolean; user: User }> => {
-    const res = await fetch(`http://localhost:5000/api/users/${userId}/role`, {
+    const res = await fetch(`${API_BASE_URL}/api/users/${userId}/role`, {
       method: 'PATCH',
       credentials: 'include',
       headers: {
@@ -348,7 +350,7 @@ interface DonationStats {
 
   // Fetch all blogs
   export const fetchBlogs = async (): Promise<BlogsResponse> => {
-    const res = await fetch('http://localhost:5000/api/blog', {
+    const res = await fetch(`${API_BASE_URL}/api/blog`, {
       credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
@@ -370,7 +372,7 @@ interface DonationStats {
 
   // Create new blog
   export const createBlog = async (blogData: CreateBlogRequest): Promise<{ success: boolean; blog: Blog }> => {
-    const res = await fetch('http://localhost:5000/api/blog', {
+    const res = await fetch(`${API_BASE_URL}/api/blog`, {
       method: 'POST',
       credentials: 'include',
       headers: {
@@ -388,7 +390,7 @@ interface DonationStats {
 
   // Update blog
   export const updateBlog = async (blogId: string, blogData: UpdateBlogRequest): Promise<{ success: boolean; blog: Blog }> => {
-    const res = await fetch(`http://localhost:5000/api/blog/${blogId}`, {
+    const res = await fetch(`${API_BASE_URL}/api/blog/${blogId}`, {
       method: 'PUT',
       credentials: 'include',
       headers: {
@@ -406,7 +408,7 @@ interface DonationStats {
 
   // Delete blog
   export const deleteBlog = async (blogId: string): Promise<{ success: boolean }> => {
-    const res = await fetch(`http://localhost:5000/api/blog/${blogId}`, {
+    const res = await fetch(`${API_BASE_URL}/api/blog/${blogId}`, {
       method: 'DELETE',
       credentials: 'include',
       headers: {
@@ -474,7 +476,7 @@ interface DonationStats {
 
   // Fetch all events
   export const fetchEvents = async (): Promise<EventsResponse> => {
-    const res = await fetch('http://localhost:5000/api/event', {
+    const res = await fetch(`${API_BASE_URL}/api/event`, {
       credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
@@ -496,7 +498,7 @@ interface DonationStats {
 
   // Create new event
   export const createEvent = async (eventData: CreateEventRequest): Promise<{ success: boolean; event: Event }> => {
-    const res = await fetch('http://localhost:5000/api/event', {
+    const res = await fetch(`${API_BASE_URL}/api/event`, {
       method: 'POST',
       credentials: 'include',
       headers: {
@@ -514,7 +516,7 @@ interface DonationStats {
 
   // Update event
   export const updateEvent = async (eventId: string, eventData: UpdateEventRequest): Promise<{ success: boolean; event: Event }> => {
-    const res = await fetch(`http://localhost:5000/api/event/${eventId}`, {
+    const res = await fetch(`${API_BASE_URL}/api/event/${eventId}`, {
       method: 'PUT',
       credentials: 'include',
       headers: {
@@ -532,7 +534,7 @@ interface DonationStats {
 
   // Delete event
   export const deleteEvent = async (eventId: string): Promise<{ success: boolean }> => {
-    const res = await fetch(`http://localhost:5000/api/event/${eventId}`, {
+    const res = await fetch(`${API_BASE_URL}/api/event/${eventId}`, {
       method: 'DELETE',
       credentials: 'include',
       headers: {
@@ -568,7 +570,7 @@ interface DonationStats {
 
   // Get user permissions
   export const getUserPermissions = async (userId: string): Promise<PermissionsResponse> => {
-    const res = await fetch(`http://localhost:5000/api/users/${userId}/permissions`, {
+    const res = await fetch(`${API_BASE_URL}/api/users/${userId}/permissions`, {
       method: 'GET',
       credentials: 'include',
       headers: {
@@ -589,7 +591,7 @@ interface DonationStats {
     userId: string,
     permissions: UserPermissions
   ): Promise<{ success: boolean; data: { permissions: UserPermissions; role: string } }> => {
-    const res = await fetch(`http://localhost:5000/api/users/${userId}/permissions`, {
+    const res = await fetch(`${API_BASE_URL}/api/users/${userId}/permissions`, {
       method: 'PUT',
       credentials: 'include',
       headers: {
@@ -607,7 +609,7 @@ interface DonationStats {
   };
 
   export const updateUserDesignation = async (userId: string, designation: string): Promise<{ success: boolean; user: User }> => {
-    const res = await fetch(`http://localhost:5000/api/users/${userId}/designation`, {
+    const res = await fetch(`${API_BASE_URL}/api/users/${userId}/designation`, {
       method: 'PATCH',
       credentials: 'include',
       headers: {
