@@ -5,7 +5,6 @@ import { useLocation } from 'wouter';
 import { useToast } from '@/hooks/use-toast';
 import { API_BASE_URL } from '@/config';
 
-const API_BASE = API_BASE_URL;
 
 interface SignupData {
   name: string;
@@ -35,7 +34,7 @@ interface SignupResponse {
 }
 
 async function registerUser(data: SignupData): Promise<SignupResponse> {
-  const res = await fetch(`${API_BASE}/api/auth/register`, {
+  const res = await fetch(`${API_BASE_URL}/api/auth/register`, {
     method: 'POST',
     credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
