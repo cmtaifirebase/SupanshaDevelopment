@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
@@ -9,147 +9,75 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { API_BASE_URL } from '@/config';
 
-// Mock volunteers data
-const initialVolunteers = [
-  { 
-    id: 1, 
-    name: 'Anil Kumar', 
-    email: 'anil.kumar@example.com', 
-    phone: '+91 98765 43210',
-    location: 'Raipur',
-    interests: ['Education', 'Community Development'],
-    status: 'Active',
-    joinDate: '2025-01-15',
-    hours: 48,
-    skills: 'Teaching, Coordination',
-  },
-  { 
-    id: 2, 
-    name: 'Sunita Devi', 
-    email: 'sunita.devi@example.com', 
-    phone: '+91 87654 32109',
-    location: 'Bhilai',
-    interests: ['Healthcare', 'Women Empowerment'],
-    status: 'Active',
-    joinDate: '2025-02-10',
-    hours: 36,
-    skills: 'Medical Aid, Counseling',
-  },
-  { 
-    id: 3, 
-    name: 'Ramesh Patel', 
-    email: 'ramesh.patel@example.com', 
-    phone: '+91 76543 21098',
-    location: 'Durg',
-    interests: ['Environment', 'Rural Development'],
-    status: 'Inactive',
-    joinDate: '2024-11-05',
-    hours: 24,
-    skills: 'Agriculture, Water Conservation',
-  },
-  { 
-    id: 4, 
-    name: 'Priya Sharma', 
-    email: 'priya.sharma@example.com', 
-    phone: '+91 65432 10987',
-    location: 'Korba',
-    interests: ['Education', 'Digital Literacy'],
-    status: 'Pending',
-    joinDate: '2025-04-02',
-    hours: 12,
-    skills: 'Computer Training, Content Creation',
-  },
-  { 
-    id: 5, 
-    name: 'Vikram Singh', 
-    email: 'vikram.singh@example.com', 
-    phone: '+91 54321 09876',
-    location: 'Bilaspur',
-    interests: ['Youth Development', 'Sports'],
-    status: 'Active',
-    joinDate: '2025-02-28',
-    hours: 32,
-    skills: 'Sports Coaching, Event Management',
-  },
-];
-
-// Mock volunteer events data
-const volunteerEvents = [
-  {
-    id: 1,
-    volunteerId: 1,
-    eventName: 'Digital Literacy Workshop',
-    location: 'Raipur',
-    date: '2025-03-15',
-    hours: 8,
-    status: 'Completed',
-  },
-  {
-    id: 2,
-    volunteerId: 1,
-    eventName: 'Community Health Camp',
-    location: 'Dhamtari',
-    date: '2025-02-20',
-    hours: 6,
-    status: 'Completed',
-  },
-  {
-    id: 3,
-    volunteerId: 2,
-    eventName: 'Women Empowerment Seminar',
-    location: 'Bhilai',
-    date: '2025-03-08',
-    hours: 4,
-    status: 'Completed',
-  },
-  {
-    id: 4,
-    volunteerId: 3,
-    eventName: 'Organic Farming Training',
-    location: 'Durg',
-    date: '2025-01-25',
-    hours: 8,
-    status: 'Completed',
-  },
-  {
-    id: 5,
-    volunteerId: 4,
-    eventName: 'School Supply Distribution',
-    location: 'Korba',
-    date: '2025-04-10',
-    hours: 6,
-    status: 'Upcoming',
-  },
-  {
-    id: 6,
-    volunteerId: 5,
-    eventName: 'Sports Day for Rural Youth',
-    location: 'Bilaspur',
-    date: '2025-03-20',
-    hours: 8,
-    status: 'Completed',
-  },
-];
+interface Volunteer {
+  _id: string;
+  name: string;
+  email: string;
+  phone: string;
+  location: string;
+  interests: string[];
+  status: 'Active' | 'Inactive' | 'Pending';
+  joinDate: string;
+  hours: number;
+  skills: string;
+  events: {
+    eventName: string;
+    location: string;
+    date: string;
+    hours: number;
+    status: 'Completed' | 'Upcoming';
+  }[];
+  notes: string;
+}
 
 const AdminVolunteers: React.FC = () => {
-  const [volunteers, setVolunteers] = useState(initialVolunteers);
+  const [volunteers, setVolunteers] = useState<Volunteer[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [activeTab, setActiveTab] = useState('all');
-  const [selectedVolunteer, setSelectedVolunteer] = useState<any>(null);
+  const [selectedVolunteer, setSelectedVolunteer] = useState<Volunteer | null>(null);
   const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [notes, setNotes] = useState('');
   const { toast } = useToast();
+  
+  // Fetch volunteers
+  useEffect(() => {
+    const fetchVolunteers = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/volunteers`, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+        
+        if (!response.ok) throw new Error('Failed to fetch volunteers');
+        
+        const data = await response.json();
+        setVolunteers(data.data);
+      } catch (error) {
+        toast({
+          title: "Error",
+          description: "Failed to load volunteers",
+          variant: "destructive"
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchVolunteers();
+  }, [toast]);
   
   // Filter volunteers based on search term and active tab
   const filteredVolunteers = volunteers.filter(volunteer => {
-    // Filter by search term
     const matchesSearch = 
       volunteer.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
       volunteer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       volunteer.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
       volunteer.skills.toLowerCase().includes(searchTerm.toLowerCase());
     
-    // Filter by status tab
     if (activeTab === 'all') return matchesSearch;
     if (activeTab === 'active') return matchesSearch && volunteer.status === 'Active';
     if (activeTab === 'inactive') return matchesSearch && volunteer.status === 'Inactive';
@@ -158,40 +86,92 @@ const AdminVolunteers: React.FC = () => {
     return matchesSearch;
   });
   
-  const handleViewDetails = (volunteer: any) => {
+  const handleViewDetails = (volunteer: Volunteer) => {
     setSelectedVolunteer(volunteer);
+    setNotes(volunteer.notes || '');
     setIsDetailsDialogOpen(true);
   };
   
-  const handleUpdateStatus = (id: number, newStatus: string) => {
-    setVolunteers(volunteers.map(volunteer => 
-      volunteer.id === id 
-        ? { ...volunteer, status: newStatus } 
-        : volunteer
-    ));
-    
-    toast({
-      title: "Status Updated",
-      description: `Volunteer status has been updated to ${newStatus}`,
-    });
-    
-    // Update selected volunteer if details dialog is open
-    if (selectedVolunteer && selectedVolunteer.id === id) {
-      setSelectedVolunteer({...selectedVolunteer, status: newStatus});
+  const handleUpdateStatus = async (id: string, newStatus: string) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/volunteers/${id}/status`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({ status: newStatus })
+      });
+      
+      if (!response.ok) throw new Error('Failed to update status');
+      
+      const updatedVolunteer = await response.json();
+      setVolunteers(volunteers.map(v => 
+        v._id === id ? updatedVolunteer.data : v
+      ));
+      
+      if (selectedVolunteer?._id === id) {
+        setSelectedVolunteer(updatedVolunteer.data);
+      }
+      
+      toast({
+        title: "Status Updated",
+        description: `Volunteer status has been updated to ${newStatus}`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update volunteer status",
+        variant: "destructive"
+      });
     }
   };
   
-  // Get volunteer events for the selected volunteer
-  const getVolunteerEvents = (volunteerId: number) => {
-    return volunteerEvents.filter(event => event.volunteerId === volunteerId);
+  const handleSaveNotes = async () => {
+    if (!selectedVolunteer) return;
+    
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/volunteers/${selectedVolunteer._id}/notes`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({ notes })
+      });
+      
+      if (!response.ok) throw new Error('Failed to save notes');
+      
+      const updatedVolunteer = await response.json();
+      setVolunteers(volunteers.map(v => 
+        v._id === selectedVolunteer._id ? updatedVolunteer.data : v
+      ));
+      setSelectedVolunteer(updatedVolunteer.data);
+      
+      toast({
+        title: "Notes Saved",
+        description: "Volunteer notes have been updated successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to save notes",
+        variant: "destructive"
+      });
+    }
   };
   
-  // Calculate total volunteer hours
-  const getTotalHours = (volunteerId: number) => {
-    return getVolunteerEvents(volunteerId)
-      .filter(event => event.status === 'Completed')
-      .reduce((total, event) => total + event.hours, 0);
-  };
+  if (isLoading) {
+    return (
+      <div className="p-6">
+        <div className="animate-pulse space-y-4">
+          <div className="h-8 bg-gray-200 rounded w-1/4"></div>
+          <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+          <div className="h-64 bg-gray-200 rounded"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
@@ -256,7 +236,7 @@ const AdminVolunteers: React.FC = () => {
             </TableHeader>
             <TableBody>
               {filteredVolunteers.map((volunteer) => (
-                <TableRow key={volunteer.id}>
+                <TableRow key={volunteer._id}>
                   <TableCell className="font-medium">{volunteer.name}</TableCell>
                   <TableCell>{volunteer.location}</TableCell>
                   <TableCell>
@@ -296,7 +276,7 @@ const AdminVolunteers: React.FC = () => {
                       </Button>
                       <Select
                         defaultValue={volunteer.status}
-                        onValueChange={(value) => handleUpdateStatus(volunteer.id, value)}
+                        onValueChange={(value) => handleUpdateStatus(volunteer._id, value)}
                       >
                         <SelectTrigger className="w-[110px] h-8 text-xs">
                           <SelectValue placeholder="Set Status" />
@@ -357,7 +337,7 @@ const AdminVolunteers: React.FC = () => {
                         {selectedVolunteer.status}
                       </span>
                     </p>
-                    <p><span className="font-medium">Join Date:</span> {selectedVolunteer.joinDate}</p>
+                    <p><span className="font-medium">Join Date:</span> {new Date(selectedVolunteer.joinDate).toLocaleDateString()}</p>
                   </div>
                 </div>
                 
@@ -368,7 +348,7 @@ const AdminVolunteers: React.FC = () => {
                     <div>
                       <p className="text-sm font-medium mb-1">Areas of Interest:</p>
                       <div className="flex flex-wrap gap-1">
-                        {selectedVolunteer.interests.map((interest: string, index: number) => (
+                        {selectedVolunteer.interests.map((interest, index) => (
                           <span 
                             key={index}
                             className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800"
@@ -390,7 +370,7 @@ const AdminVolunteers: React.FC = () => {
                     </div>
                     <div className="bg-gray-100 p-3 rounded-lg text-center">
                       <p className="text-sm text-gray-600">Events</p>
-                      <p className="text-2xl font-bold">{getVolunteerEvents(selectedVolunteer.id).length}</p>
+                      <p className="text-2xl font-bold">{selectedVolunteer.events.length}</p>
                     </div>
                   </div>
                 </div>
@@ -410,10 +390,10 @@ const AdminVolunteers: React.FC = () => {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {getVolunteerEvents(selectedVolunteer.id).map((event) => (
-                        <TableRow key={event.id}>
+                      {selectedVolunteer.events.map((event, index) => (
+                        <TableRow key={index}>
                           <TableCell className="font-medium">{event.eventName}</TableCell>
-                          <TableCell>{event.date}</TableCell>
+                          <TableCell>{new Date(event.date).toLocaleDateString()}</TableCell>
                           <TableCell>{event.location}</TableCell>
                           <TableCell>{event.hours}</TableCell>
                           <TableCell>
@@ -429,7 +409,7 @@ const AdminVolunteers: React.FC = () => {
                           </TableCell>
                         </TableRow>
                       ))}
-                      {getVolunteerEvents(selectedVolunteer.id).length === 0 && (
+                      {selectedVolunteer.events.length === 0 && (
                         <TableRow>
                           <TableCell colSpan={5} className="text-center py-4 text-gray-500">
                             No activities recorded for this volunteer.
@@ -445,9 +425,11 @@ const AdminVolunteers: React.FC = () => {
                   <Textarea 
                     placeholder="Add notes or feedback about this volunteer..."
                     className="min-h-[100px]"
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
                   />
                   <div className="flex justify-end mt-2">
-                    <Button size="sm">Save Notes</Button>
+                    <Button size="sm" onClick={handleSaveNotes}>Save Notes</Button>
                   </div>
                 </div>
                 

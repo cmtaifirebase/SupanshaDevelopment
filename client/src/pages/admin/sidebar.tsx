@@ -18,6 +18,7 @@ import {
   FaShoppingCart,
   FaChevronDown,
   FaHome,
+  FaUserCircle,
 } from "react-icons/fa";
 
 interface MenuItem {
@@ -30,6 +31,7 @@ interface MenuItem {
 
 const adminMenu: MenuItem[] = [
   { label: "Dashboard", icon: <FaTachometerAlt />, href: "/admin/dashboard", module: "dashboard" },
+  { label: "Profile", icon: <FaUserCircle />, href: "/admin/profile", module: "profile" },
   { label: "Certificates", icon: <FaFile />, href: "/admin/certificates", module: "certificates" },
   {
     label: "User Management",
@@ -85,10 +87,17 @@ const Sidebar: React.FC = () => {
   const sidebarWidth = isCollapsed && !hovered ? "w-16" : "w-64";
 
   const hasModuleAccess = (module: string) => {
+    // Always allow access to profile module
+    if (module === "profile") return true;
+    
     if (user?.role === "admin") return true;
-    console.log('Checking permissions for module:', module);
-    console.log('Current permissions:', permissions?.permissions);
-    return permissions?.permissions?.[module]?.read === true;
+    
+    // Check if the module exists in permissions and has read access
+    const modulePermissions = permissions?.permissions?.[module];
+    if (!modulePermissions) return false;
+    
+    // Check if read permission is explicitly set to true
+    return modulePermissions.read === true;
   };
 
   const filteredMenu = adminMenu.filter((item) => {

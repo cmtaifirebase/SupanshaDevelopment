@@ -206,23 +206,42 @@ interface DonationStats {
   
   // Fetch all users
   export const fetchUsers = async (): Promise<UsersResponse> => {
+    // First check localStorage for users data
+    const storedUsers = localStorage.getItem('users');
+    if (storedUsers) {
+      try {
+        const parsedUsers = JSON.parse(storedUsers);
+        // Check if the stored data is less than 5 minutes old
+        const lastUpdated = localStorage.getItem('users_last_updated');
+        if (lastUpdated && Date.now() - parseInt(lastUpdated) < 5 * 60 * 1000) {
+          return parsedUsers;
+        }
+      } catch (error) {
+        console.error('Error parsing stored users:', error);
+      }
+    }
+
     const res = await fetch(`${API_BASE_URL}/api/users`, {
       credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
       },
     });
-  
+
     if (!res.ok) {
       throw new Error(`Failed to fetch users: ${res.statusText}`);
     }
-  
+
     const data = await res.json();
-  
+
     if (!data.success || !Array.isArray(data.data)) {
       throw new Error('Invalid users data structure');
     }
-  
+
+    // Save to localStorage
+    localStorage.setItem('users', JSON.stringify(data));
+    localStorage.setItem('users_last_updated', Date.now().toString());
+
     return data;
   };
   
@@ -241,7 +260,24 @@ interface DonationStats {
       throw new Error(`Failed to create user: ${res.statusText}`);
     }
   
-    return res.json();
+    const response = await res.json();
+    
+    // Update localStorage cache
+    const storedUsers = localStorage.getItem('users');
+    if (storedUsers) {
+      try {
+        const parsedUsers = JSON.parse(storedUsers);
+        if (parsedUsers.success && Array.isArray(parsedUsers.data)) {
+          parsedUsers.data.push(response.user);
+          localStorage.setItem('users', JSON.stringify(parsedUsers));
+          localStorage.setItem('users_last_updated', Date.now().toString());
+        }
+      } catch (error) {
+        console.error('Error updating users cache after create:', error);
+      }
+    }
+  
+    return response;
   };
   
   // Update user status
@@ -259,7 +295,27 @@ interface DonationStats {
       throw new Error(`Failed to update user status: ${res.statusText}`);
     }
   
-    return res.json();
+    const response = await res.json();
+    
+    // Update localStorage cache
+    const storedUsers = localStorage.getItem('users');
+    if (storedUsers) {
+      try {
+        const parsedUsers = JSON.parse(storedUsers);
+        if (parsedUsers.success && Array.isArray(parsedUsers.data)) {
+          const userIndex = parsedUsers.data.findIndex((user: User) => user._id === userId);
+          if (userIndex !== -1) {
+            parsedUsers.data[userIndex].status = status;
+            localStorage.setItem('users', JSON.stringify(parsedUsers));
+            localStorage.setItem('users_last_updated', Date.now().toString());
+          }
+        }
+      } catch (error) {
+        console.error('Error updating users cache after status update:', error);
+      }
+    }
+  
+    return response;
   };
   
   // Delete user
@@ -276,7 +332,24 @@ interface DonationStats {
       throw new Error(`Failed to delete user: ${res.statusText}`);
     }
   
-    return res.json();
+    const response = await res.json();
+    
+    // Update localStorage cache
+    const storedUsers = localStorage.getItem('users');
+    if (storedUsers) {
+      try {
+        const parsedUsers = JSON.parse(storedUsers);
+        if (parsedUsers.success && Array.isArray(parsedUsers.data)) {
+          parsedUsers.data = parsedUsers.data.filter((user: User) => user._id !== userId);
+          localStorage.setItem('users', JSON.stringify(parsedUsers));
+          localStorage.setItem('users_last_updated', Date.now().toString());
+        }
+      } catch (error) {
+        console.error('Error updating users cache after delete:', error);
+      }
+    }
+  
+    return response;
   };
   
   // Update user role and permissions
@@ -297,7 +370,27 @@ interface DonationStats {
       throw new Error(`Failed to update user role: ${res.statusText}`);
     }
   
-    return res.json();
+    const response = await res.json();
+    
+    // Update localStorage cache
+    const storedUsers = localStorage.getItem('users');
+    if (storedUsers) {
+      try {
+        const parsedUsers = JSON.parse(storedUsers);
+        if (parsedUsers.success && Array.isArray(parsedUsers.data)) {
+          const userIndex = parsedUsers.data.findIndex((user: User) => user._id === userId);
+          if (userIndex !== -1) {
+            parsedUsers.data[userIndex] = response.user;
+            localStorage.setItem('users', JSON.stringify(parsedUsers));
+            localStorage.setItem('users_last_updated', Date.now().toString());
+          }
+        }
+      } catch (error) {
+        console.error('Error updating users cache after role update:', error);
+      }
+    }
+  
+    return response;
   };
 
   // Blog related types and functions
@@ -570,6 +663,20 @@ interface DonationStats {
 
   // Get user permissions
   export const getUserPermissions = async (userId: string): Promise<PermissionsResponse> => {
+    // First check localStorage for user data
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      const user = JSON.parse(storedUser);
+      if (user.permissions) {
+        return {
+          success: true,
+          permissions: user.permissions,
+          role: user.role
+        };
+      }
+    }
+
+    // If not found in localStorage, fetch from API
     const res = await fetch(`${API_BASE_URL}/api/users/${userId}/permissions`, {
       method: 'GET',
       credentials: 'include',

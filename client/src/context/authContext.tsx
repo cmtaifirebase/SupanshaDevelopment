@@ -13,7 +13,22 @@ interface User {
   name: string;
   email: string;
   role: string;
-  // Add other fields if needed
+  designation?: string;
+  level?: number;
+  geo?: {
+    country?: string;
+    state?: string;
+    region?: string;
+    district?: string;
+    block?: string;
+    area?: string;
+  };
+  permissions?: Record<string, {
+    read: boolean;
+    create: boolean;
+    update: boolean;
+    delete: boolean;
+  }>;
 }
 
 interface AuthContextType {

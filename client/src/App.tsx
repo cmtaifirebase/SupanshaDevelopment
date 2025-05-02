@@ -56,6 +56,7 @@ import AdminCauses from "@/pages/admin/causes";
 import AdminCrowdFunding from "@/pages/admin/crowdFunding";
 import AdminForum from "@/pages/admin/forum";
 import AdminShop from "@/pages/admin/shop";
+import Profile from "@/pages/admin/Profile";
 
 // Admin Layout
 import AdminLayout from "@/layouts/AdminLayout";
@@ -288,6 +289,13 @@ function Router() {
             <AdminShop />
           </AdminLayout>
         </PrivateRoute>
+      </Route>
+      <Route path="/admin/profile">
+        <AdminLayout>
+        <PrivateRoute>
+          <Profile />
+        </PrivateRoute>
+        </AdminLayout>
       </Route>
 
       {/* Catch-all */}

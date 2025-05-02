@@ -88,10 +88,10 @@ const UserPermissionsDialog: React.FC<UserPermissionsDialogProps> = ({ user, ope
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (user) {
+    if (open && user) {
       setPermissions(user.permissions || {});
     }
-  }, [user]);
+  }, [open, user]);
 
   const handlePermissionChange = (module: string, action: string, value: boolean) => {
     setPermissions(prev => ({
@@ -123,6 +123,9 @@ const UserPermissionsDialog: React.FC<UserPermissionsDialogProps> = ({ user, ope
       <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Edit User Permissions</DialogTitle>
+          <DialogDescription>
+            Manage user permissions for different modules. Changes will be saved when you click Save.
+          </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
           {modules.map(module => (
@@ -137,6 +140,7 @@ const UserPermissionsDialog: React.FC<UserPermissionsDialogProps> = ({ user, ope
                       checked={permissions[module.id]?.[action] || false}
                       onChange={(e) => handlePermissionChange(module.id, action, e.target.checked)}
                       className="h-4 w-4 rounded border-gray-300"
+                      aria-label={`${action} permission for ${module.label}`}
                     />
                     <Label htmlFor={`${module.id}-${action}`} className="text-sm">
                       {action.charAt(0).toUpperCase() + action.slice(1)}
