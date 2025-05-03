@@ -62,7 +62,7 @@ function Login() {
     onSuccess: async (data) => {
       try {
         // Ensure login completes before navigation
-        await login(data.user);
+        await login(data.user as any);
         
         toast({
           title: 'Success',
@@ -72,7 +72,7 @@ function Login() {
         // Add slight delay to ensure state propagation
         
         if(!loading) {
-          navigate('/admin/dashboard');
+          navigate('/admin/profile');
         }
       } catch (err) {
         toast({

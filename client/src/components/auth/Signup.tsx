@@ -64,12 +64,12 @@ function Signup() {
   const { mutate, isPending, error } = useMutation({
     mutationFn: registerUser,
     onSuccess: (data) => {
-      login(data.user );
+      login(data.user as any);
       toast({
         title: 'Success',
         description: 'Account created successfully',
       });
-      navigate('/admin/dashboard');
+      navigate('/admin/profile');
     },
     onError: (error) => {
       toast({

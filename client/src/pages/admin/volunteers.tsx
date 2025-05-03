@@ -113,11 +113,11 @@ const AdminVolunteers: React.FC = () => {
       if (selectedVolunteer?._id === id) {
         setSelectedVolunteer(updatedVolunteer.data);
       }
-      
-      toast({
-        title: "Status Updated",
-        description: `Volunteer status has been updated to ${newStatus}`,
-      });
+    
+    toast({
+      title: "Status Updated",
+      description: `Volunteer status has been updated to ${newStatus}`,
+    });
     } catch (error) {
       toast({
         title: "Error",

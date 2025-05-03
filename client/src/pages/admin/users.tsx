@@ -228,6 +228,7 @@ const AdminUsers: React.FC = () => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isPermissionsDialogOpen, setIsPermissionsDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const {
     data: usersData,
@@ -238,6 +239,15 @@ const AdminUsers: React.FC = () => {
     queryKey: ["users"],
     queryFn: fetchUsers,
   });
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      await refetchUsers();
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
 
   const updateStatusMutation = useMutation({
     mutationFn: ({
@@ -573,15 +583,15 @@ const AdminUsers: React.FC = () => {
             <Button
               variant="outline"
               size="icon"
-              onClick={() => refetchUsers()}
-              disabled={isUsersLoading}
+              onClick={handleRefresh}
+              disabled={isRefreshing || isUsersLoading}
               className={cn(
                 "transition-transform duration-200",
-                isUsersLoading && "animate-spin"
+                (isRefreshing || isUsersLoading) && "animate-spin"
               )}
             >
-              <RefreshCw className={cn("h-4 w-4", isUsersLoading && "animate-spin")} />
-            </Button>
+              <RefreshCw className={cn("h-4 w-4", (isRefreshing || isUsersLoading) && "animate-spin")} />
+                </Button>
           </div>
         </CardHeader>
         <CardContent>
@@ -594,7 +604,28 @@ const AdminUsers: React.FC = () => {
             />
           </div>
 
-          <DataTable columns={columns} data={filteredUsers} />
+          {(isUsersLoading || isRefreshing) ? (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <Skeleton className="h-4 w-[200px]" />
+                <Skeleton className="h-4 w-[100px]" />
+              </div>
+              <div className="space-y-2">
+                {[...Array(5)].map((_, i) => (
+                  <div key={i} className="grid grid-cols-6 gap-4">
+                    <Skeleton className="h-10 w-full" />
+                    <Skeleton className="h-10 w-full" />
+                    <Skeleton className="h-10 w-full" />
+                    <Skeleton className="h-10 w-full" />
+                    <Skeleton className="h-10 w-full" />
+                    <Skeleton className="h-10 w-full" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <DataTable columns={columns} data={filteredUsers} />
+          )}
         </CardContent>
       </Card>
 
@@ -604,7 +635,11 @@ const AdminUsers: React.FC = () => {
           open={isPermissionsDialogOpen}
           onClose={() => setIsPermissionsDialogOpen(false)}
           onUpdate={(updatedPermissions) => {
-            // Handle the update of permissions
+            queryClient.invalidateQueries({ queryKey: ["users"] });
+            toast({
+              title: "Permissions updated",
+              description: "User permissions have been updated successfully",
+            });
           }}
         />
       )}

@@ -23,8 +23,11 @@ import {
   FaHeart,
   FaComments,
   FaShoppingCart,
+  FaUsers,
+  FaChartLine,
+  FaProjectDiagram,
 } from "react-icons/fa";
-
+import { useLocation } from "wouter";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 
@@ -41,6 +44,9 @@ const modules = [
   { label: "Crowd-Funding", icon: <FaHeart />, href: "/admin/crowd-funding", module: "crowd-funding" },
   { label: "Forum", icon: <FaComments />, href: "/admin/forum", module: "forum" },
   { label: "Shop", icon: <FaShoppingCart />, href: "/admin/shop", module: "shop" },
+  { label: "Volunteers", icon: <FaUsers />, href: "/admin/volunteers", module: "volunteers" },
+  { label: "Donations", icon: <FaChartLine />, href: "/admin/donations", module: "donations" },
+  { label: "Projects", icon: <FaProjectDiagram />, href: "/admin/projects", module: "projects" },
 ];
 
 const AdminDashboard: React.FC = () => {
@@ -48,6 +54,7 @@ const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState("");
+  const [, navigate] = useLocation();
 
   const { data: permissions } = useQuery({
     queryKey: ["userPermissions", user?._id],
@@ -75,6 +82,7 @@ const AdminDashboard: React.FC = () => {
   } = useQuery({
     queryKey: ["totalDonations"],
     queryFn: fetchTotalDonations,
+    enabled: hasModuleAccess("donations"),
   });
 
   // Donation Overview Query
@@ -87,6 +95,7 @@ const AdminDashboard: React.FC = () => {
   } = useQuery({
     queryKey: ["donationOverview"],
     queryFn: fetchDonationOverview,
+    enabled: hasModuleAccess("donations"),
   });
 
   // Recent Activities Query
@@ -97,8 +106,10 @@ const AdminDashboard: React.FC = () => {
     refetch: refetchRecentActivities,
     isRefetching: isRefetchingActivities,
   } = useQuery({
+      
     queryKey: ["recentActivities"],
     queryFn: fetchRecentActivities,
+    enabled: hasModuleAccess("activities"),
   });
 
   return (
@@ -291,8 +302,9 @@ const AdminDashboard: React.FC = () => {
             <ActionButton
                 key={module.href}
                 title={module.label}
-                description={module.label}
+                description={`Manage ${module.label.toLowerCase()}`}
                 icon={module.icon}
+                href={module.href}
               />
             ))}
           </div>
@@ -554,9 +566,15 @@ const ActionButton: React.FC<{
   title: string;
   description: string;
   icon: React.ReactNode;
-}> = ({ title, description, icon }) => {
+  href: string;
+}> = ({ title, description, icon, href }) => {
+  const [, navigate] = useLocation();
+  
   return (
-    <button className="flex flex-col items-center text-center bg-white border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition">
+    <button 
+      onClick={() => navigate(href)}
+      className="flex flex-col items-center text-center bg-white border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition cursor-pointer w-full"
+    >
       <div className="text-3xl mb-2">{icon}</div>
       <h3 className="font-medium text-sm">{title}</h3>
       <p className="text-xs text-gray-500 mt-1">{description}</p>

@@ -712,7 +712,28 @@ interface DonationStats {
       throw new Error(`Failed to update user permissions: ${res.statusText}`);
     }
 
-    return res.json();
+    const response = await res.json();
+
+    // Update localStorage cache
+    const storedUsers = localStorage.getItem('users');
+    if (storedUsers) {
+      try {
+        const parsedUsers = JSON.parse(storedUsers);
+        if (parsedUsers.success && Array.isArray(parsedUsers.data)) {
+          const userIndex = parsedUsers.data.findIndex((user: User) => user._id === userId);
+          if (userIndex !== -1) {
+            parsedUsers.data[userIndex].permissions = response.data.permissions;
+            parsedUsers.data[userIndex].role = response.data.role;
+            localStorage.setItem('users', JSON.stringify(parsedUsers));
+            localStorage.setItem('users_last_updated', Date.now().toString());
+          }
+        }
+      } catch (error) {
+        console.error('Error updating users cache after permissions update:', error);
+      }
+    }
+
+    return response;
   };
 
   export const updateUserDesignation = async (userId: string, designation: string): Promise<{ success: boolean; user: User }> => {
