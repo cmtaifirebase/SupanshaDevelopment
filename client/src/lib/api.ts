@@ -207,19 +207,7 @@ interface DonationStats {
   // Fetch all users
   export const fetchUsers = async (): Promise<UsersResponse> => {
     // First check localStorage for users data
-    const storedUsers = localStorage.getItem('users');
-    if (storedUsers) {
-      try {
-        const parsedUsers = JSON.parse(storedUsers);
-        // Check if the stored data is less than 5 minutes old
-        const lastUpdated = localStorage.getItem('users_last_updated');
-        if (lastUpdated && Date.now() - parseInt(lastUpdated) < 5 * 60 * 1000) {
-          return parsedUsers;
-        }
-      } catch (error) {
-        console.error('Error parsing stored users:', error);
-      }
-    }
+
 
     const res = await fetch(`${API_BASE_URL}/api/users`, {
       credentials: 'include',
@@ -227,21 +215,20 @@ interface DonationStats {
         'Content-Type': 'application/json',
       },
     });
-
+  
     if (!res.ok) {
       throw new Error(`Failed to fetch users: ${res.statusText}`);
     }
-
+  
     const data = await res.json();
-
+  
     if (!data.success || !Array.isArray(data.data)) {
       throw new Error('Invalid users data structure');
     }
 
-    // Save to localStorage
-    localStorage.setItem('users', JSON.stringify(data));
-    localStorage.setItem('users_last_updated', Date.now().toString());
 
+    localStorage.setItem('users', JSON.stringify(data));
+  
     return data;
   };
   
@@ -270,7 +257,6 @@ interface DonationStats {
         if (parsedUsers.success && Array.isArray(parsedUsers.data)) {
           parsedUsers.data.push(response.user);
           localStorage.setItem('users', JSON.stringify(parsedUsers));
-          localStorage.setItem('users_last_updated', Date.now().toString());
         }
       } catch (error) {
         console.error('Error updating users cache after create:', error);
@@ -280,6 +266,49 @@ interface DonationStats {
     return response;
   };
   
+  export const updateUser = async (userId: string, userData: {
+    name?: string;
+    email?: string;
+    role?: string;
+    designation?: string;
+    status?: 'active' | 'inactive';
+  }): Promise<{ success: boolean; user: User }> => {
+    const res = await fetch(`${API_BASE_URL}/api/users/${userId}`, {
+      method: 'PUT',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(userData),
+    });
+  
+    if (!res.ok) {
+      throw new Error(`Failed to update user: ${res.statusText}`);
+    }
+  
+    const response = await res.json();
+    
+    // Update localStorage cache
+
+    const storedUsers = localStorage.getItem('users');
+    if (storedUsers) {
+      try {
+        const parsedUsers = JSON.parse(storedUsers);
+        if (parsedUsers.success && Array.isArray(parsedUsers.data)) {
+          const userIndex = parsedUsers.data.findIndex((user: User) => user._id === userId);
+          if (userIndex !== -1) {
+            parsedUsers.data[userIndex] = { ...parsedUsers.data[userIndex], ...userData };
+            localStorage.setItem('users', JSON.stringify(parsedUsers));
+          }
+        }
+      } catch (error) {
+        console.error('Error updating users cache after update:', error);
+      }
+    }
+
+  
+    return response;
+  };
   // Update user status
   export const updateUserStatus = async (userId: string, status: 'active' | 'inactive'): Promise<{ success: boolean }> => {
     const res = await fetch(`${API_BASE_URL}/api/users/${userId}/status`, {
@@ -307,7 +336,6 @@ interface DonationStats {
           if (userIndex !== -1) {
             parsedUsers.data[userIndex].status = status;
             localStorage.setItem('users', JSON.stringify(parsedUsers));
-            localStorage.setItem('users_last_updated', Date.now().toString());
           }
         }
       } catch (error) {
@@ -342,7 +370,6 @@ interface DonationStats {
         if (parsedUsers.success && Array.isArray(parsedUsers.data)) {
           parsedUsers.data = parsedUsers.data.filter((user: User) => user._id !== userId);
           localStorage.setItem('users', JSON.stringify(parsedUsers));
-          localStorage.setItem('users_last_updated', Date.now().toString());
         }
       } catch (error) {
         console.error('Error updating users cache after delete:', error);
@@ -380,9 +407,8 @@ interface DonationStats {
         if (parsedUsers.success && Array.isArray(parsedUsers.data)) {
           const userIndex = parsedUsers.data.findIndex((user: User) => user._id === userId);
           if (userIndex !== -1) {
-            parsedUsers.data[userIndex] = response.user;
+            parsedUsers.data[userIndex].role = role;
             localStorage.setItem('users', JSON.stringify(parsedUsers));
-            localStorage.setItem('users_last_updated', Date.now().toString());
           }
         }
       } catch (error) {
@@ -681,15 +707,14 @@ interface DonationStats {
       method: 'GET',
       credentials: 'include',
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
+        'Content-Type': 'application/json'
       }
     });
 
     if (!res.ok) {
       throw new Error(`Failed to fetch user permissions: ${res.statusText}`);
     }
-
+  
     return res.json();
   };
 
@@ -702,8 +727,7 @@ interface DonationStats {
       method: 'PUT',
       credentials: 'include',
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({ permissions })
     });
@@ -725,7 +749,6 @@ interface DonationStats {
             parsedUsers.data[userIndex].permissions = response.data.permissions;
             parsedUsers.data[userIndex].role = response.data.role;
             localStorage.setItem('users', JSON.stringify(parsedUsers));
-            localStorage.setItem('users_last_updated', Date.now().toString());
           }
         }
       } catch (error) {
@@ -749,6 +772,114 @@ interface DonationStats {
     if (!res.ok) {
       throw new Error(`Failed to update user designation: ${res.statusText}`);
     }
-
-    return res.json();
+  
+    const response = await res.json();
+    
+    // Update localStorage cache
+    const storedUsers = localStorage.getItem('users');
+    if (storedUsers) {
+      try {
+        const parsedUsers = JSON.parse(storedUsers);
+        if (parsedUsers.success && Array.isArray(parsedUsers.data)) {
+          const userIndex = parsedUsers.data.findIndex((user: User) => user._id === userId);
+          if (userIndex !== -1) {
+            parsedUsers.data[userIndex].designation = designation;
+            localStorage.setItem('users', JSON.stringify(parsedUsers));
+          }
+        }
+      } catch (error) {
+        console.error('Error updating users cache after designation update:', error);
+      }
+    }
+  
+    return response;
   };
+
+
+  interface Role {
+    _id: string;
+    name: string;
+    description?: string;
+    permissions: UserPermissions;
+    createdAt: string;
+    updatedAt: string;
+  }
+
+  // Role related API functions
+export const fetchRoles = async (): Promise<{ success: boolean; data: Role[] }> => {
+  const response = await fetch(`${API_BASE_URL}/api/roles`, {
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+  const data = await response.json();
+  return { success: true, data: data.data };
+};
+
+export const getRoleById = async (id: string): Promise<{ data: Role }> => {
+  const response = await fetch(`${API_BASE_URL}/api/roles/${id}`, {
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+  return response.json();
+};
+
+export const getRoleByName = async (name: string): Promise<{ data: Role }> => {
+  const response = await fetch(`${API_BASE_URL}/api/roles/${name}`, {
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+  return response.json();
+};
+
+export const createRole = async (roleData: Partial<Role>): Promise<{ data: Role }> => {
+  const response = await fetch(`${API_BASE_URL}/api/roles`, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(roleData),
+  });
+  return response.json();
+};
+
+export const updateRole = async (id: string, roleData: Partial<Role>): Promise<{ data: Role }> => {
+  const response = await fetch(`${API_BASE_URL}/api/roles/${id}`, {
+    method: 'PUT',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(roleData),
+  });
+  return response.json();
+};
+export const deleteRole = async (id: string): Promise<{ success: boolean }> => {
+    const response = await fetch(`${API_BASE_URL}/api/roles/${id}`, {
+    method: 'DELETE',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+  return response.json();
+};
+
+export const getRolePermissions = async (name: string): Promise<{ data: UserPermissions }> => {
+  const response = await fetch(`${API_BASE_URL}/api/roles/${name}/permissions`, {
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+  return response.json();
+};
+
+
+

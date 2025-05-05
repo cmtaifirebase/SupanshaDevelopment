@@ -27,7 +27,7 @@ const routeToModuleMap: Record<string, string> = {
   '/admin/jobs': 'jobs',
   '/admin/blogs': 'blogs',
   '/admin/causes': 'causes',
-  '/admin/crowd-funding': 'crowd-funding',
+  '/admin/crowd-funding': 'crowdFunding',
   '/admin/forum': 'forum',
   '/admin/shop': 'shop',
 };

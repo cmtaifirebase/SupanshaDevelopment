@@ -41,7 +41,7 @@ const modules = [
   { label: "Jobs", icon: <FaBriefcase />, href: "/admin/jobs", module: "jobs" },
   { label: "Blogs", icon: <FaBlog />, href: "/admin/blogs", module: "blogs" },
   { label: "Causes", icon: <FaHeart />, href: "/admin/causes", module: "causes" },
-  { label: "Crowd-Funding", icon: <FaHeart />, href: "/admin/crowd-funding", module: "crowd-funding" },
+  { label: "Crowd-Funding", icon: <FaHeart />, href: "/admin/crowd-funding", module: "crowdFunding" },
   { label: "Forum", icon: <FaComments />, href: "/admin/forum", module: "forum" },
   { label: "Shop", icon: <FaShoppingCart />, href: "/admin/shop", module: "shop" },
   { label: "Volunteers", icon: <FaUsers />, href: "/admin/volunteers", module: "volunteers" },

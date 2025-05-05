@@ -59,37 +59,36 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   const fetchUser = async () => {
-    console.log('Checking session...'); // Debug
     
     // Check localStorage first
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
-      console.log('Using stored user data'); // Debug
       setUser(JSON.parse(storedUser));
       setLoading(false);
       return;
     }
 
     try {
+
+      // only fetch user data if user is logged in
+      if (user) {
+
       const res = await fetch(`${API_BASE_URL}/api/auth/me`, {
         credentials: 'include',
       });
-      console.log('Session check status:', res.status); // Debug
 
       if (res.ok) {
         const data = await res.json();
-        console.log('User data:', data); // Debug
         const userData = data.user;
         setUser(userData);
         // Store in localStorage
         localStorage.setItem('user', JSON.stringify(userData));
       } else {
-        console.warn('Session check failed, status:', res.status);
         setUser(null);
         localStorage.removeItem('user');
       }
+      }
     } catch (err) {
-      console.error('Session check error:', err);
       setUser(null);
       localStorage.removeItem('user');
     } finally {
@@ -112,24 +111,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const logout = async () => {
-    console.log('Logging out'); // Debug
     try {
       const res = await fetch(`${API_BASE_URL}/api/auth/logout`, {
         method: 'POST',
         credentials: 'include',
       });
-      console.log('Logout response:', res.status); // Debug
     } catch (err) {
-      console.error('Logout failed:', err);
     } finally {
       setUser(null);
       // Remove from localStorage
       localStorage.removeItem('user');
+      // if users are in local storage, remove them
+      const storedUsers = localStorage.getItem('users');
+      if (storedUsers) {
+        localStorage.removeItem('users');
+      }
     }
   };
 
   const isAuthenticated = useMemo(() => !!user, [user]); // Memoize for stability
-  console.log('Current auth state:', { user, isAuthenticated }); // Debug
 
   return (
     <AuthContext.Provider

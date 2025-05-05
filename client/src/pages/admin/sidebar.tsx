@@ -49,7 +49,7 @@ const adminMenu: MenuItem[] = [
   { label: "Jobs", icon: <FaBriefcase />, href: "/admin/jobs", module: "jobs" },
   { label: "Blogs", icon: <FaBlog />, href: "/admin/blogs", module: "blogs" },
   { label: "Causes", icon: <FaHeart />, href: "/admin/causes", module: "causes" },
-  { label: "Crowd-Funding", icon: <FaHeart />, href: "/admin/crowd-funding", module: "crowd-funding" },
+  { label: "Crowd-Funding", icon: <FaHeart />, href: "/admin/crowd-funding", module: "crowdFunding" },
   { label: "Forum", icon: <FaComments />, href: "/admin/forum", module: "forum" },
   { label: "Shop", icon: <FaShoppingCart />, href: "/admin/shop", module: "shop" },
 ];
@@ -103,7 +103,6 @@ const Sidebar: React.FC = () => {
   const filteredMenu = adminMenu.filter((item) => {
     if (item.module === "users") return user?.role === "admin";
     const hasAccess = hasModuleAccess(item.module);
-    console.log(`Module ${item.module} access:`, hasAccess);
     return hasAccess;
   });
 
